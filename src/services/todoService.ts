@@ -8,7 +8,7 @@ export async function fetchTodos(): Promise<Todo[]> {
   if (!response.ok) {
     throw new Error('Failed to fetch todos');
   }
-  const todos = await response.json() as Array<{
+  const todos = await response.json() as {
     id: string;
     title: string;
     description?: string;
@@ -16,7 +16,7 @@ export async function fetchTodos(): Promise<Todo[]> {
     completed: boolean;
     createdAt: string;
     completedAt?: string;
-  }>;
+  }[];
   return todos.map((todo) => ({
     ...todo,
     createdAt: new Date(todo.createdAt),

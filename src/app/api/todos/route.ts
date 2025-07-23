@@ -20,7 +20,7 @@ async function readTodos(): Promise<Todo[]> {
   try {
     await ensureDataDir();
     const data = await fs.readFile(DB_FILE, 'utf8');
-    const todos = JSON.parse(data) as Array<{
+    const todos = JSON.parse(data) as {
       id: string;
       title: string;
       description?: string;
@@ -28,14 +28,15 @@ async function readTodos(): Promise<Todo[]> {
       completed: boolean;
       createdAt: string;
       completedAt?: string;
-    }>;
+    }[];
     return todos.map((todo) => ({
       ...todo,
       createdAt: new Date(todo.createdAt),
       completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
     }));
-  } catch {
+  } catch (error: unknown) {
     // If file doesn't exist, return empty array
+    console.error('Error reading todos:', error);
     return [];
   }
 }

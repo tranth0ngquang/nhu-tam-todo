@@ -9,7 +9,7 @@ const DB_FILE = path.join(process.cwd(), 'data', 'todos.json');
 async function readTodos(): Promise<Todo[]> {
   try {
     const data = await fs.readFile(DB_FILE, 'utf8');
-    const todos = JSON.parse(data) as Array<{
+    const todos = JSON.parse(data) as {
       id: string;
       title: string;
       description?: string;
@@ -17,13 +17,14 @@ async function readTodos(): Promise<Todo[]> {
       completed: boolean;
       createdAt: string;
       completedAt?: string;
-    }>;
+    }[];
     return todos.map((todo) => ({
       ...todo,
       createdAt: new Date(todo.createdAt),
       completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
     }));
-  } catch {
+  } catch (error: unknown) {
+    console.error('Error reading todos:', error);
     return [];
   }
 }
@@ -33,7 +34,8 @@ async function writeTodos(todos: Todo[]): Promise<void> {
   const dataDir = path.dirname(DB_FILE);
   try {
     await fs.access(dataDir);
-  } catch {
+  } catch (error: unknown) {
+    console.error('Creating directory:', error);
     await fs.mkdir(dataDir, { recursive: true });
   }
   await fs.writeFile(DB_FILE, JSON.stringify(todos, null, 2));

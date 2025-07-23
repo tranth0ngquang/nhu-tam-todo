@@ -110,7 +110,16 @@ src/
 
 ## Scripts
 
-- `npm run dev` - Chạy development server
-- `npm run build` - Build production
+- `npm run dev` - Chạy development server (http://localhost:3000)
+- `npm run build` - Build production (✅ Ready for deployment)
 - `npm run start` - Chạy production server
 - `npm run lint` - Kiểm tra code style
+
+## Deployment
+
+✅ **Production Ready**: Ứng dụng đã được tối ưu và sẵn sàng deploy lên Vercel hoặc các platform khác.
+
+- Build thành công với TypeScript + ESLint validation
+- Tất cả API routes hoạt động ổn định
+- Static pages được tối ưu tự động
+- Compatible với Vercel Serverless Functions
