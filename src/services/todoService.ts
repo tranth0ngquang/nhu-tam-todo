@@ -2,21 +2,23 @@ import { Todo, TodoFormData, TodoPriority } from '@/types/todo';
 
 const API_BASE = '/api/todos';
 
+interface TodoResponse {
+  id: string;
+  title: string;
+  description?: string;
+  priority: TodoPriority;
+  completed: boolean;
+  createdAt: string;
+  completedAt?: string;
+}
+
 // Get all todos
 export async function fetchTodos(): Promise<Todo[]> {
   const response = await fetch(API_BASE);
   if (!response.ok) {
     throw new Error('Failed to fetch todos');
   }
-  const todos = await response.json() as {
-    id: string;
-    title: string;
-    description?: string;
-    priority: TodoPriority;
-    completed: boolean;
-    createdAt: string;
-    completedAt?: string;
-  }[];
+  const todos = await response.json() as TodoResponse[];
   return todos.map((todo) => ({
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -38,15 +40,7 @@ export async function createTodo(data: TodoFormData): Promise<Todo> {
     throw new Error('Failed to create todo');
   }
 
-  const todo = await response.json() as {
-    id: string;
-    title: string;
-    description?: string;
-    priority: TodoPriority;
-    completed: boolean;
-    createdAt: string;
-    completedAt?: string;
-  };
+  const todo = await response.json() as TodoResponse;
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -68,15 +62,7 @@ export async function updateTodo(id: string, data: TodoFormData): Promise<Todo> 
     throw new Error('Failed to update todo');
   }
 
-  const todo = await response.json() as {
-    id: string;
-    title: string;
-    description?: string;
-    priority: TodoPriority;
-    completed: boolean;
-    createdAt: string;
-    completedAt?: string;
-  };
+  const todo = await response.json() as TodoResponse;
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -98,15 +84,7 @@ export async function toggleTodo(id: string, completed: boolean): Promise<Todo> 
     throw new Error('Failed to toggle todo');
   }
 
-  const todo = await response.json() as {
-    id: string;
-    title: string;
-    description?: string;
-    priority: TodoPriority;
-    completed: boolean;
-    createdAt: string;
-    completedAt?: string;
-  };
+  const todo = await response.json() as TodoResponse;
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),

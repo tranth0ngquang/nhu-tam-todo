@@ -5,19 +5,21 @@ import { Todo, TodoFormData, TodoPriority } from '@/types/todo';
 
 const DB_FILE = path.join(process.cwd(), 'data', 'todos.json');
 
+interface TodoData {
+  id: string;
+  title: string;
+  description?: string;
+  priority: TodoPriority;
+  completed: boolean;
+  createdAt: string;
+  completedAt?: string;
+}
+
 // Read todos from file
 async function readTodos(): Promise<Todo[]> {
   try {
     const data = await fs.readFile(DB_FILE, 'utf8');
-    const todos = JSON.parse(data) as {
-      id: string;
-      title: string;
-      description?: string;
-      priority: TodoPriority;
-      completed: boolean;
-      createdAt: string;
-      completedAt?: string;
-    }[];
+    const todos = JSON.parse(data) as TodoData[];
     return todos.map((todo) => ({
       ...todo,
       createdAt: new Date(todo.createdAt),
