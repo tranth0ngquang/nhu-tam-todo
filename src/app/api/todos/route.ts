@@ -20,9 +20,16 @@ async function ensureDataDir() {
   const dataDir = path.dirname(DB_FILE);
   try {
     await fs.access(dataDir);
-  } catch {
+  } catch (error: unknown) {
+    console.error('Creating directory:', error);
     await fs.mkdir(dataDir, { recursive: true });
   }
+}
+
+// Safe JSON parse function
+function parseJsonSafely(jsonString: string): TodoData[] {
+  const parsed: unknown = JSON.parse(jsonString);
+  return parsed as TodoData[];
 }
 
 // Read todos from file
@@ -30,7 +37,7 @@ async function readTodos(): Promise<Todo[]> {
   try {
     await ensureDataDir();
     const data = await fs.readFile(DB_FILE, 'utf8');
-    const todos = JSON.parse(data) as TodoData[];
+    const todos = parseJsonSafely(data);
     return todos.map((todo) => ({
       ...todo,
       createdAt: new Date(todo.createdAt),
@@ -54,7 +61,7 @@ export async function GET() {
   try {
     const todos = await readTodos();
     return NextResponse.json(todos);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error reading todos:', error);
     return NextResponse.json({ error: 'Failed to read todos' }, { status: 500 });
   }
@@ -84,7 +91,7 @@ export async function POST(request: NextRequest) {
     await writeTodos(todos);
 
     return NextResponse.json(newTodo, { status: 201 });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error creating todo:', error);
     return NextResponse.json({ error: 'Failed to create todo' }, { status: 500 });
   }

@@ -15,11 +15,17 @@ interface TodoData {
   completedAt?: string;
 }
 
+// Safe JSON parse function
+function parseJsonSafely(jsonString: string): TodoData[] {
+  const parsed: unknown = JSON.parse(jsonString);
+  return parsed as TodoData[];
+}
+
 // Read todos from file
 async function readTodos(): Promise<Todo[]> {
   try {
     const data = await fs.readFile(DB_FILE, 'utf8');
-    const todos = JSON.parse(data) as TodoData[];
+    const todos = parseJsonSafely(data);
     return todos.map((todo) => ({
       ...todo,
       createdAt: new Date(todo.createdAt),
@@ -58,7 +64,7 @@ export async function GET(
     }
 
     return NextResponse.json(todo);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error reading todo:', error);
     return NextResponse.json({ error: 'Failed to read todo' }, { status: 500 });
   }
@@ -97,7 +103,7 @@ export async function PUT(
 
     await writeTodos(todos);
     return NextResponse.json(todos[todoIndex]);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error updating todo:', error);
     return NextResponse.json({ error: 'Failed to update todo' }, { status: 500 });
   }
@@ -121,7 +127,7 @@ export async function DELETE(
     await writeTodos(todos);
     
     return NextResponse.json(deletedTodo);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error deleting todo:', error);
     return NextResponse.json({ error: 'Failed to delete todo' }, { status: 500 });
   }

@@ -12,13 +12,22 @@ interface TodoResponse {
   completedAt?: string;
 }
 
+// Safe JSON parse functions
+function parseJsonArray(response: Response): Promise<TodoResponse[]> {
+  return response.json().then((data: unknown) => data as TodoResponse[]);
+}
+
+function parseJsonSingle(response: Response): Promise<TodoResponse> {
+  return response.json().then((data: unknown) => data as TodoResponse);
+}
+
 // Get all todos
 export async function fetchTodos(): Promise<Todo[]> {
   const response = await fetch(API_BASE);
   if (!response.ok) {
     throw new Error('Failed to fetch todos');
   }
-  const todos = await response.json() as TodoResponse[];
+  const todos = await parseJsonArray(response);
   return todos.map((todo) => ({
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -40,7 +49,7 @@ export async function createTodo(data: TodoFormData): Promise<Todo> {
     throw new Error('Failed to create todo');
   }
 
-  const todo = await response.json() as TodoResponse;
+  const todo = await parseJsonSingle(response);
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -62,7 +71,7 @@ export async function updateTodo(id: string, data: TodoFormData): Promise<Todo> 
     throw new Error('Failed to update todo');
   }
 
-  const todo = await response.json() as TodoResponse;
+  const todo = await parseJsonSingle(response);
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -84,7 +93,7 @@ export async function toggleTodo(id: string, completed: boolean): Promise<Todo> 
     throw new Error('Failed to toggle todo');
   }
 
-  const todo = await response.json() as TodoResponse;
+  const todo = await parseJsonSingle(response);
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
