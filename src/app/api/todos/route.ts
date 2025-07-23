@@ -59,19 +59,31 @@ async function writeTodosToFile(todos: Todo[]): Promise<void> {
 
 // Universal read function
 async function readTodos(): Promise<Todo[]> {
-  if (await isKVAvailable()) {
-    return getAllTodos();
+  try {
+    if (await isKVAvailable()) {
+      return await getAllTodos();
+    }
+  } catch (error: unknown) {
+    console.warn('KV read failed, falling back to file storage:', error);
   }
+  
+  // Fallback to file storage
   return readTodosFromFile();
 }
 
 // Universal write function
 async function writeTodos(todos: Todo[]): Promise<void> {
-  if (await isKVAvailable()) {
-    await saveTodos(todos);
-  } else {
-    await writeTodosToFile(todos);
+  try {
+    if (await isKVAvailable()) {
+      await saveTodos(todos);
+      return;
+    }
+  } catch (error: unknown) {
+    console.warn('KV write failed, falling back to file storage:', error);
   }
+  
+  // Fallback to file storage
+  await writeTodosToFile(todos);
 }
 
 // GET /api/todos - Get all todos

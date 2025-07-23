@@ -8,22 +8,24 @@ interface KVStore {
 
 // KV storage functions for Vercel deployment
 let kv: KVStore | null = null;
+let kvChecked = false;
 
 async function getKV(): Promise<KVStore | null> {
-  if (!kv) {
+  if (!kvChecked) {
     try {
-      const { kv: vercelKV } = await import('@vercel/kv');
-      kv = vercelKV as KVStore;
+      // Only try to import KV if we're in production environment
+      if (process.env.VERCEL || process.env.KV_REST_API_URL) {
+        const { kv: vercelKV } = await import('@vercel/kv');
+        kv = vercelKV as KVStore;
+      }
     } catch (error: unknown) {
-      console.warn('Vercel KV not available, using memory storage', error);
-      return null;
+      console.warn('Vercel KV not available, using file storage', error);
+      kv = null;
     }
+    kvChecked = true;
   }
   return kv;
 }
-
-// In-memory fallback for development
-let memoryStorage: Todo[] = [];
 
 export async function getAllTodos(): Promise<Todo[]> {
   const kvStore = await getKV();
@@ -32,14 +34,14 @@ export async function getAllTodos(): Promise<Todo[]> {
     try {
       const todos = await kvStore.get('todos');
       return todos || [];
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error reading from KV:', error);
-      return [];
+      throw error; // Let the calling function handle the fallback
     }
   }
   
-  // Fallback to memory storage for development
-  return memoryStorage;
+  // Should not reach here - let calling function handle file storage
+  throw new Error('KV not available');
 }
 
 export async function saveTodos(todos: Todo[]): Promise<void> {
@@ -49,17 +51,21 @@ export async function saveTodos(todos: Todo[]): Promise<void> {
     try {
       await kvStore.set('todos', todos);
       return;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving to KV:', error);
-      throw error;
+      throw error; // Let the calling function handle the fallback
     }
   }
   
-  // Fallback to memory storage for development
-  memoryStorage = todos;
+  // Should not reach here - let calling function handle file storage
+  throw new Error('KV not available');
 }
 
 export async function isKVAvailable(): Promise<boolean> {
-  const kvStore = await getKV();
-  return !!kvStore;
+  try {
+    const kvStore = await getKV();
+    return !!kvStore;
+  } catch {
+    return false;
+  }
 }
