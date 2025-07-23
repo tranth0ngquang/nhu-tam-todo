@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Todo, TodoFormData, TodoPriority } from '@/types/todo';
+import { getAllTodos, saveTodos, isKVAvailable } from '@/services/storageService';
 
 const DB_FILE = path.join(process.cwd(), 'data', 'todos.json');
 
@@ -21,8 +22,8 @@ function parseJsonSafely(jsonString: string): TodoData[] {
   return parsed as TodoData[];
 }
 
-// Read todos from file
-async function readTodos(): Promise<Todo[]> {
+// Read todos from file (fallback for local development)
+async function readTodosFromFile(): Promise<Todo[]> {
   try {
     const data = await fs.readFile(DB_FILE, 'utf8');
     const todos = parseJsonSafely(data);
@@ -37,8 +38,8 @@ async function readTodos(): Promise<Todo[]> {
   }
 }
 
-// Write todos to file
-async function writeTodos(todos: Todo[]): Promise<void> {
+// Write todos to file (fallback for local development)
+async function writeTodosToFile(todos: Todo[]): Promise<void> {
   const dataDir = path.dirname(DB_FILE);
   try {
     await fs.access(dataDir);
@@ -47,6 +48,23 @@ async function writeTodos(todos: Todo[]): Promise<void> {
     await fs.mkdir(dataDir, { recursive: true });
   }
   await fs.writeFile(DB_FILE, JSON.stringify(todos, null, 2));
+}
+
+// Universal read function
+async function readTodos(): Promise<Todo[]> {
+  if (await isKVAvailable()) {
+    return getAllTodos();
+  }
+  return readTodosFromFile();
+}
+
+// Universal write function
+async function writeTodos(todos: Todo[]): Promise<void> {
+  if (await isKVAvailable()) {
+    await saveTodos(todos);
+  } else {
+    await writeTodosToFile(todos);
+  }
 }
 
 // GET /api/todos/[id] - Get specific todo

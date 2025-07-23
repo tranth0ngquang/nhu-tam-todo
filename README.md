@@ -123,3 +123,36 @@ src/
 - Tất cả API routes hoạt động ổn định
 - Static pages được tối ưu tự động
 - Compatible với Vercel Serverless Functions
+
+### **🚀 Deploy lên Vercel:**
+
+1. **Push code lên GitHub**
+2. **Connect với Vercel Dashboard**
+3. **Setup Vercel KV (Redis):**
+   - Vào Vercel Dashboard > Storage > Create KV Database
+   - Copy `KV_REST_API_URL` và `KV_REST_API_TOKEN`
+   - Add vào Environment Variables trong Vercel project
+4. **Deploy**: Sẽ tự động success! 🎉
+
+### **💾 Storage Solutions:**
+
+#### **Local Development:**
+- Sử dụng file `data/todos.json` 
+- Tự động sync realtime giữa các máy trong mạng
+
+#### **Production (Vercel):**
+- Sử dụng **Vercel KV (Redis)** cho cloud storage
+- Fast, scalable, serverless-friendly
+- Automatic fallback to memory storage nếu KV unavailable
+
+### **🔧 Environment Variables:**
+```env
+# Add these to Vercel Dashboard > Settings > Environment Variables
+KV_REST_API_URL=your_kv_rest_api_url  
+KV_REST_API_TOKEN=your_kv_rest_api_token
+```
+
+### **📱 Multi-device Access:**
+- **Local**: `http://localhost:3000` và `http://YOUR-IP:3000`
+- **Production**: `https://your-app.vercel.app`
+- Data sync tự động across all devices
