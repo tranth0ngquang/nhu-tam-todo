@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Todo, TodoFormData, TodoPriority } from '@/types/todo';
-import { getAllTodos, saveTodos, isKVAvailable } from '@/services/storageService';
+import { getAllTodos as getMemoryTodos, saveTodos as saveMemoryTodos } from '@/services/memoryStorage';
 
 const DB_FILE = path.join(process.cwd(), 'data', 'todos.json');
 
@@ -52,30 +52,28 @@ async function writeTodosToFile(todos: Todo[]): Promise<void> {
 
 // Universal read function
 async function readTodos(): Promise<Todo[]> {
-  try {
-    if (await isKVAvailable()) {
-      return await getAllTodos();
-    }
-  } catch (error: unknown) {
-    console.warn('KV read failed, falling back to file storage:', error);
+  // Check if we're in Vercel environment (production)
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    console.log('Using memory storage for production');
+    return await getMemoryTodos();
   }
   
-  // Fallback to file storage
+  // Use file storage for local development
+  console.log('Using file storage for development');
   return readTodosFromFile();
 }
 
 // Universal write function
 async function writeTodos(todos: Todo[]): Promise<void> {
-  try {
-    if (await isKVAvailable()) {
-      await saveTodos(todos);
-      return;
-    }
-  } catch (error: unknown) {
-    console.warn('KV write failed, falling back to file storage:', error);
+  // Check if we're in Vercel environment (production)
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    console.log('Saving to memory storage for production');
+    await saveMemoryTodos(todos);
+    return;
   }
   
-  // Fallback to file storage
+  // Use file storage for local development
+  console.log('Saving to file storage for development');
   await writeTodosToFile(todos);
 }
 

@@ -127,30 +127,38 @@ src/
 ### **🚀 Deploy lên Vercel:**
 
 1. **Push code lên GitHub**
-2. **Connect với Vercel Dashboard**
-3. **Setup Vercel KV (Redis):**
-   - Vào Vercel Dashboard > Storage > Create KV Database
-   - Copy `KV_REST_API_URL` và `KV_REST_API_TOKEN`
-   - Add vào Environment Variables trong Vercel project
-4. **Deploy**: Sẽ tự động success! 🎉
+2. **Connect với Vercel Dashboard**  
+3. **Deploy**: Sẽ tự động success! 🎉
+
+**✨ Zero Configuration Required:**
+- Không cần setup database
+- Không cần environment variables
+- Không cần external services
+- Just push và deploy!
 
 ### **💾 Storage Solutions:**
 
 #### **Local Development:**
 - Sử dụng file `data/todos.json` 
 - Tự động sync realtime giữa các máy trong mạng
+- Persistent storage across server restarts
 
 #### **Production (Vercel):**
-- Sử dụng **Vercel KV (Redis)** cho cloud storage
-- Fast, scalable, serverless-friendly
-- Automatic fallback to memory storage nếu KV unavailable
+- Sử dụng **In-Memory Storage** cho serverless environment
+- Fast, simple, zero-config
+- Auto-initialize với sample data
+- ⚠️ **Note**: Data sẽ reset khi Vercel function cold start
 
-### **🔧 Environment Variables:**
-```env
-# Add these to Vercel Dashboard > Settings > Environment Variables
-KV_REST_API_URL=your_kv_rest_api_url  
-KV_REST_API_TOKEN=your_kv_rest_api_token
-```
+#### **� Upgrade Path (Optional):**
+Để có persistent storage trên production, có thể upgrade lên:
+- **Vercel KV (Redis)** - Fast key-value store
+- **Vercel Postgres** - Full SQL database
+- **External DB** - MongoDB, Supabase, etc.
+
+### **🔧 No Environment Variables Required:**
+- ✅ **Zero config** - Works out of the box
+- ✅ **Local**: File storage automatically detected
+- ✅ **Production**: Memory storage automatically used
 
 ### **📱 Multi-device Access:**
 - **Local**: `http://localhost:3000` và `http://YOUR-IP:3000`
