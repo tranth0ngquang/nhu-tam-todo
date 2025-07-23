@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Todo, TodoFormData } from '@/types/todo';
+import { Todo, TodoFormData, TodoPriority } from '@/types/todo';
 
 const DB_FILE = path.join(process.cwd(), 'data', 'todos.json');
 
@@ -20,13 +20,21 @@ async function readTodos(): Promise<Todo[]> {
   try {
     await ensureDataDir();
     const data = await fs.readFile(DB_FILE, 'utf8');
-    const todos = JSON.parse(data);
-    return todos.map((todo: any) => ({
+    const todos = JSON.parse(data) as Array<{
+      id: string;
+      title: string;
+      description?: string;
+      priority: TodoPriority;
+      completed: boolean;
+      createdAt: string;
+      completedAt?: string;
+    }>;
+    return todos.map((todo) => ({
       ...todo,
       createdAt: new Date(todo.createdAt),
       completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
     }));
-  } catch (error) {
+  } catch {
     // If file doesn't exist, return empty array
     return [];
   }

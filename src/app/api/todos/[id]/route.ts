@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Todo, TodoFormData } from '@/types/todo';
+import { Todo, TodoFormData, TodoPriority } from '@/types/todo';
 
 const DB_FILE = path.join(process.cwd(), 'data', 'todos.json');
 
@@ -9,13 +9,21 @@ const DB_FILE = path.join(process.cwd(), 'data', 'todos.json');
 async function readTodos(): Promise<Todo[]> {
   try {
     const data = await fs.readFile(DB_FILE, 'utf8');
-    const todos = JSON.parse(data);
-    return todos.map((todo: any) => ({
+    const todos = JSON.parse(data) as Array<{
+      id: string;
+      title: string;
+      description?: string;
+      priority: TodoPriority;
+      completed: boolean;
+      createdAt: string;
+      completedAt?: string;
+    }>;
+    return todos.map((todo) => ({
       ...todo,
       createdAt: new Date(todo.createdAt),
       completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
     }));
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -34,11 +42,12 @@ async function writeTodos(todos: Todo[]): Promise<void> {
 // GET /api/todos/[id] - Get specific todo
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const todos = await readTodos();
-    const todo = todos.find(t => t.id === params.id);
+    const todo = todos.find(t => t.id === id);
     
     if (!todo) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 });
@@ -54,13 +63,14 @@ export async function GET(
 // PUT /api/todos/[id] - Update todo
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const updates: Partial<TodoFormData> & { completed?: boolean } = await request.json();
     const todos = await readTodos();
     
-    const todoIndex = todos.findIndex(t => t.id === params.id);
+    const todoIndex = todos.findIndex(t => t.id === id);
     if (todoIndex === -1) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 });
     }
@@ -92,11 +102,12 @@ export async function PUT(
 // DELETE /api/todos/[id] - Delete todo
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const todos = await readTodos();
-    const todoIndex = todos.findIndex(t => t.id === params.id);
+    const todoIndex = todos.findIndex(t => t.id === id);
     
     if (todoIndex === -1) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 });

@@ -1,4 +1,4 @@
-import { Todo, TodoFormData } from '@/types/todo';
+import { Todo, TodoFormData, TodoPriority } from '@/types/todo';
 
 const API_BASE = '/api/todos';
 
@@ -8,8 +8,16 @@ export async function fetchTodos(): Promise<Todo[]> {
   if (!response.ok) {
     throw new Error('Failed to fetch todos');
   }
-  const todos = await response.json();
-  return todos.map((todo: any) => ({
+  const todos = await response.json() as Array<{
+    id: string;
+    title: string;
+    description?: string;
+    priority: TodoPriority;
+    completed: boolean;
+    createdAt: string;
+    completedAt?: string;
+  }>;
+  return todos.map((todo) => ({
     ...todo,
     createdAt: new Date(todo.createdAt),
     completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
@@ -30,7 +38,15 @@ export async function createTodo(data: TodoFormData): Promise<Todo> {
     throw new Error('Failed to create todo');
   }
 
-  const todo = await response.json();
+  const todo = await response.json() as {
+    id: string;
+    title: string;
+    description?: string;
+    priority: TodoPriority;
+    completed: boolean;
+    createdAt: string;
+    completedAt?: string;
+  };
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -52,7 +68,15 @@ export async function updateTodo(id: string, data: TodoFormData): Promise<Todo> 
     throw new Error('Failed to update todo');
   }
 
-  const todo = await response.json();
+  const todo = await response.json() as {
+    id: string;
+    title: string;
+    description?: string;
+    priority: TodoPriority;
+    completed: boolean;
+    createdAt: string;
+    completedAt?: string;
+  };
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
@@ -74,7 +98,15 @@ export async function toggleTodo(id: string, completed: boolean): Promise<Todo> 
     throw new Error('Failed to toggle todo');
   }
 
-  const todo = await response.json();
+  const todo = await response.json() as {
+    id: string;
+    title: string;
+    description?: string;
+    priority: TodoPriority;
+    completed: boolean;
+    createdAt: string;
+    completedAt?: string;
+  };
   return {
     ...todo,
     createdAt: new Date(todo.createdAt),
