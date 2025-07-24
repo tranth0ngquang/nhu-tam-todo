@@ -26,19 +26,19 @@ export function DataPersistenceWarning() {
       <AlertTriangle className="h-4 w-4 text-orange-600" />
       <AlertDescription className="flex items-center justify-between">
         <div className="text-orange-800">
-          <strong>⚠️ Lưu ý:</strong> Data sẽ bị reset sau 10-15 phút không hoạt động. 
+          <strong>⚠️ Lưu ý:</strong> Đang dùng JSONBin storage tạm thời. 
           <br />
-          Setup JSONBin API để data persistent lâu dài (Free).
+          Setup Firebase để có real-time sync và persistent storage.
         </div>
         <div className="flex gap-2 ml-4">
           <Button
             variant="outline"
             size="sm"
             className="text-orange-700 border-orange-300 hover:bg-orange-100"
-            onClick={() => window.open('https://github.com/tranth0ngquang/nhu-tam-todo/blob/main/SIMPLE_BACKEND_OPTIONS.md', '_blank')}
+            onClick={() => window.open('https://github.com/tranth0ngquang/nhu-tam-todo/blob/main/FIREBASE_SETUP_GUIDE.md', '_blank')}
           >
             <ExternalLink className="w-3 h-3 mr-1" />
-            Setup Guide
+            Setup Guide (Firebase)
           </Button>
           <Button
             variant="ghost"
