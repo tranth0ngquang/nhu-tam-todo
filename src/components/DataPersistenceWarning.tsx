@@ -28,14 +28,14 @@ export function DataPersistenceWarning() {
         <div className="text-orange-800">
           <strong>⚠️ Lưu ý:</strong> Data sẽ bị reset sau 10-15 phút không hoạt động. 
           <br />
-          Setup Vercel KV để data persistent lâu dài.
+          Setup JSONBin API để data persistent lâu dài (Free).
         </div>
         <div className="flex gap-2 ml-4">
           <Button
             variant="outline"
             size="sm"
             className="text-orange-700 border-orange-300 hover:bg-orange-100"
-            onClick={() => window.open('/VERCEL_KV_SETUP.md', '_blank')}
+            onClick={() => window.open('https://github.com/tranth0ngquang/nhu-tam-todo/blob/main/SIMPLE_BACKEND_OPTIONS.md', '_blank')}
           >
             <ExternalLink className="w-3 h-3 mr-1" />
             Setup Guide
