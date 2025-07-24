@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TodoFormData } from '@/types/todo';
-// TODO: Đổi import từ jsonBinStorage sang firebaseStorage sau khi setup Firebase
 import { getAllTodos, createTodo } from '@/services/firebaseStorage';
-// import { getAllTodos, createTodo } from '@/services/jsonBinStorage';
 
 // GET /api/todos - Get all todos
 export async function GET() {

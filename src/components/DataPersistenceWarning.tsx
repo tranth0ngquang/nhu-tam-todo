@@ -10,11 +10,8 @@ export function DataPersistenceWarning() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Check if we're in production and using memory storage
-    setIsProduction(
-      typeof window !== 'undefined' && 
-      window.location.hostname !== 'localhost'
-    );
+    // Firebase is configured, no warning needed
+    setIsProduction(false);
   }, []);
 
   if (!isProduction || !isVisible) {
