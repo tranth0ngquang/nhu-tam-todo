@@ -13,23 +13,35 @@ let kvChecked = false;
 async function getKV(): Promise<KVStore | null> {
   if (!kvChecked) {
     try {
-      // Only try to import KV if we have the required environment variables
+      // Try to import KV if we're in production or have environment variables
+      const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
       const hasKVEnv = process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN;
       
       console.log('KV Environment check:', {
         hasKVUrl: !!process.env.KV_REST_API_URL,
         hasKVToken: !!process.env.KV_REST_API_TOKEN,
         isVercel: !!process.env.VERCEL,
+        isProduction,
         nodeEnv: process.env.NODE_ENV
       });
       
-      if (hasKVEnv) {
+      // Only use KV in production if environment variables are available
+      if (isProduction && hasKVEnv) {
         console.log('Attempting to import Vercel KV...');
         const { kv: vercelKV } = await import('@vercel/kv');
         kv = vercelKV as KVStore;
         console.log('KV import successful');
+        
+        // Test KV connection
+        try {
+          await vercelKV.ping();
+          console.log('KV connection verified');
+        } catch (pingError) {
+          console.error('KV ping failed:', pingError);
+          kv = null;
+        }
       } else {
-        console.log('KV environment variables not found, using fallback storage');
+        console.log('Using fallback storage - not production or no KV env vars');
       }
     } catch (error: unknown) {
       console.error('KV import failed:', error);
